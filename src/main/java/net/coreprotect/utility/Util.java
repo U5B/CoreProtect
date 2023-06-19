@@ -10,6 +10,7 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -49,6 +50,9 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.io.BukkitObjectOutputStream;
+import org.jetbrains.annotations.Nullable;
+
+import com.google.gson.Gson;
 
 import net.coreprotect.CoreProtect;
 import net.coreprotect.bukkit.BukkitAdapter;
@@ -61,6 +65,8 @@ import net.coreprotect.model.BlockGroup;
 import net.coreprotect.thread.CacheHandler;
 import net.coreprotect.utility.serialize.ItemMetaHandler;
 import net.coreprotect.worldedit.CoreProtectEditSessionEvent;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
 
 public class Util extends Queue {
 
@@ -274,24 +280,33 @@ public class Util extends Queue {
         ItemStack item = new ItemStack(Util.getType(type), amount);
         item = (ItemStack) Rollback.populateItemStack(item, metadata)[2];
         String displayName = item.hasItemMeta() && item.getItemMeta().hasDisplayName() ? item.getItemMeta().getDisplayName() : "";
-        StringBuilder message = new StringBuilder(Color.ITALIC + displayName + Color.GREY);
+        if (displayName.isEmpty()) {
+            return "";
+        }
+        StringBuilder message = new StringBuilder("\n" + displayName + Color.RESET);
 
-        List<String> enchantments = ItemMetaHandler.getEnchantments(item, displayName);
-        for (String enchantment : enchantments) {
-            if (message.length() > 0) {
-                message.append("\n");
+        @Nullable
+        List<String> lore = item.getItemMeta().getLore();
+        if (lore != null) {
+            for (String line : lore) {
+                if (line == null || line.isEmpty()) {
+                    continue;
+                }
+                if (message.length() > 0) {
+                    message.append("\n");
+                }
+                message.append(line + Color.RESET);
             }
-            message.append(enchantment);
         }
 
-        if (!displayName.isEmpty()) {
-            message.insert(0, enchantments.isEmpty() ? Color.WHITE : Color.AQUA);
-        }
-        else if (!enchantments.isEmpty()) {
-            String name = Util.capitalize(item.getType().name().replace("_", " "), true);
-            message.insert(0, Color.AQUA + Color.ITALIC + name);
-        }
 
+        // if (!displayName.isEmpty()) {
+        //     message.insert(0, lore.isEmpty() ? Color.WHITE : Color.AQUA);
+        // }
+        // else if (!lore.isEmpty()) {
+        //     String name = Util.capitalize(item.getType().name().replace("_", " "), true);
+        //     message.insert(0, Color.AQUA + Color.ITALIC + name);
+        // }
         return message.toString();
     }
 

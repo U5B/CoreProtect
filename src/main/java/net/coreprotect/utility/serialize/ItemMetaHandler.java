@@ -26,6 +26,8 @@ import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.inventory.meta.SuspiciousStewMeta;
 import org.bukkit.potion.PotionEffect;
 
+import com.sk89q.worldedit.util.formatting.text.Component;
+
 import net.coreprotect.bukkit.BukkitAdapter;
 import net.coreprotect.utility.Util;
 
