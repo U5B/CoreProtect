@@ -49,7 +49,6 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.io.BukkitObjectOutputStream;
-import org.jetbrains.annotations.Nullable;
 
 import net.coreprotect.CoreProtect;
 import net.coreprotect.bukkit.BukkitAdapter;
@@ -278,21 +277,21 @@ public class Util extends Queue {
         if (displayName.isEmpty()) {
             return "";
         }
-        StringBuilder message = new StringBuilder("\n" + displayName + Color.RESET);
+        StringBuilder message = new StringBuilder(displayName);
 
-        @Nullable
-        List<String> lore = item.getItemMeta().getLore();
-        if (lore != null) {
-            for (String line : lore) {
-                if (line == null || line.isEmpty()) {
-                    continue;
-                }
-                if (message.length() > 0) {
-                    message.append("\n");
-                }
-                message.append(line + Color.RESET);
-            }
-        }
+        // @Nullable
+        // List<String> lore = item.getItemMeta().getLore();
+        // if (lore != null) {
+        //     for (String line : lore) {
+        //         if (line == null || line.isEmpty()) {
+        //             continue;
+        //         }
+        //         if (message.length() > 0) {
+        //             message.append("\n");
+        //         }
+        //         message.append(line + COLOR.RESET);
+        //     }
+        // }
 
 
         // if (!displayName.isEmpty()) {
