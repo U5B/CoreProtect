@@ -52,9 +52,12 @@ public class ConfigHandler extends Queue {
     public static String username = "root";
     public static String password = "";
     public static String prefix = "co_";
+    public static int maximumPoolSize = 10;
+
     public static HikariDataSource hikariDataSource = null;
     public static final boolean isSpigot = Util.isSpigot();
     public static final boolean isPaper = Util.isPaper();
+    public static final boolean isFolia = Util.isFolia();
     public static volatile boolean serverRunning = false;
     public static volatile boolean converterRunning = false;
     public static volatile boolean purgeRunning = false;
@@ -118,7 +121,7 @@ public class ConfigHandler extends Queue {
     public static Map<Integer, String> playerIdCacheReversed = syncMap();
     public static Map<String, List<Object>> lastRollback = syncMap();
     public static Map<String, Boolean> activeRollbacks = syncMap();
-    public static Map<String, Object[]> entityBlockMapper = syncMap();
+    public static Map<String, Object[]> entityBlockMapper = new ConcurrentHashMap<>();
     public static ConcurrentHashMap<Long, Long> populatedChunks = new ConcurrentHashMap<>();
     public static ConcurrentHashMap<String, String> language = new ConcurrentHashMap<>();
     public static List<String> databaseTables = new ArrayList<>();
@@ -173,6 +176,7 @@ public class ConfigHandler extends Queue {
             ConfigHandler.database = Config.getGlobal().MYSQL_DATABASE;
             ConfigHandler.username = Config.getGlobal().MYSQL_USERNAME;
             ConfigHandler.password = Config.getGlobal().MYSQL_PASSWORD;
+            ConfigHandler.maximumPoolSize = Config.getGlobal().MAXIMUM_POOL_SIZE;
             ConfigHandler.prefix = Config.getGlobal().PREFIX;
 
             ConfigHandler.loadBlacklist(); // Load the blacklist file if it exists.
@@ -229,8 +233,8 @@ public class ConfigHandler extends Queue {
             config.setJdbcUrl("jdbc:mysql://" + ConfigHandler.host + ":" + ConfigHandler.port + "/" + ConfigHandler.database);
             config.setUsername(ConfigHandler.username);
             config.setPassword(ConfigHandler.password);
-            config.setMaxLifetime(300000);
-            config.setKeepaliveTime(60000);
+            config.setMaximumPoolSize(ConfigHandler.maximumPoolSize);
+            config.setMaxLifetime(60000);
             config.addDataSourceProperty("characterEncoding", "UTF-8");
             config.addDataSourceProperty("connectionTimeout", "10000");
             /* https://github.com/brettwooldridge/HikariCP/wiki/MySQL-Configuration */
@@ -245,7 +249,7 @@ public class ConfigHandler extends Queue {
             config.addDataSourceProperty("maintainTimeStats", "false");
             /* Disable SSL to suppress the unverified server identity warning */
             config.addDataSourceProperty("allowPublicKeyRetrieval", "true");
-            config.addDataSourceProperty("useSSL", "false");
+            config.addDataSourceProperty("useSSL", Config.getGlobal().ENABLE_SSL);
 
             ConfigHandler.hikariDataSource = new HikariDataSource(config);
         }

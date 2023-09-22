@@ -20,6 +20,7 @@ import org.bukkit.World;
 
 import net.coreprotect.CoreProtect;
 import net.coreprotect.language.Language;
+import net.coreprotect.thread.Scheduler;
 
 public class Config extends Language {
 
@@ -42,6 +43,7 @@ public class Config extends Language {
     public String MYSQL_PASSWORD;
     public String LANGUAGE;
     public boolean ENABLE_AWE;
+    public boolean ENABLE_SSL;
     public boolean DISABLE_WAL;
     public boolean HOVER_EVENTS;
     public boolean DATABASE_LOCK;
@@ -85,8 +87,10 @@ public class Config extends Language {
     public boolean PLAYER_MESSAGES;
     public boolean PLAYER_COMMANDS;
     public boolean PLAYER_SESSIONS;
+    public boolean UNKNOWN_LOGGING;
     public boolean USERNAME_CHANGES;
     public boolean WORLDEDIT;
+    public int MAXIMUM_POOL_SIZE;
     public int MYSQL_PORT;
     public int DEFAULT_RADIUS;
     public int MAX_RADIUS;
@@ -165,7 +169,7 @@ public class Config extends Language {
         HEADERS.put("sign-text", new String[] { "# Logs text on signs. If disabled, signs will be blank when rolled back." });
         HEADERS.put("buckets", new String[] { "# Logs lava and water sources placed/removed by players who are using buckets." });
         HEADERS.put("leaf-decay", new String[] { "# Logs natural tree leaf decay." });
-        HEADERS.put("tree-growth", new String[] { "# Logs tree growth. Trees are linked to the player who planted the sappling." });
+        HEADERS.put("tree-growth", new String[] { "# Logs tree growth. Trees are linked to the player who planted the sapling." });
         HEADERS.put("mushroom-growth", new String[] { "# Logs mushroom growth." });
         HEADERS.put("vine-growth", new String[] { "# Logs natural vine growth." });
         HEADERS.put("sculk-spread", new String[] { "# Logs the spread of sculk blocks from sculk catalysts." });
@@ -187,6 +191,7 @@ public class Config extends Language {
 
     private void readValues() {
         this.ENABLE_AWE = this.getBoolean("enable-awe", false);
+        this.ENABLE_SSL = this.getBoolean("enable-ssl", false);
         this.DISABLE_WAL = this.getBoolean("disable-wal", false);
         this.HOVER_EVENTS = this.getBoolean("hover-events", true);
         this.DATABASE_LOCK = this.getBoolean("database-lock", true);
@@ -194,6 +199,8 @@ public class Config extends Language {
         this.HOPPER_FILTER_META = this.getBoolean("hopper-filter-meta", false);
         this.EXCLUDE_TNT = this.getBoolean("exclude-tnt", false);
         this.NETWORK_DEBUG = this.getBoolean("network-debug", false);
+        this.UNKNOWN_LOGGING = this.getBoolean("unknown-logging", false);
+        this.MAXIMUM_POOL_SIZE = this.getInt("maximum-pool-size", 10);
         this.DONATION_KEY = this.getString("donation-key");
         this.MYSQL = this.getBoolean("use-mysql");
         this.PREFIX = this.getString("table-prefix");
@@ -310,7 +317,7 @@ public class Config extends Language {
 
         configured = configured.replaceAll("[^0-9]", "");
 
-        return configured.isEmpty() ? 0 : Integer.parseInt(configured);
+        return configured.isEmpty() ? dfl : Integer.parseInt(configured);
     }
 
     private String getString(final String key) {
@@ -383,7 +390,7 @@ public class Config extends Language {
             // for now this solution is good enough to ensure we only modify on the main thread
             final CompletableFuture<Void> complete = new CompletableFuture<>();
 
-            Bukkit.getScheduler().runTask(CoreProtect.getInstance(), () -> {
+            Scheduler.runTask(CoreProtect.getInstance(), () -> {
                 try {
                     parseConfig(data);
                 }
