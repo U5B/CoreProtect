@@ -7,6 +7,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -126,7 +127,8 @@ public class Util extends Queue {
         }
 
         // command
-        message.append("|/" + command + " teleport wid:" + worldId + " " + (x + 0.50) + " " + y + " " + (z + 0.50) + "|");
+        DecimalFormat decimalFormat = new DecimalFormat("#.##", new DecimalFormatSymbols(Locale.ROOT));
+        message.append("|/" + command + " teleport wid:" + worldId + " " + decimalFormat.format(x + 0.50) + " " + y + " " + decimalFormat.format(z + 0.50) + "|");
 
         // chat output
         message.append(Color.GREY + (italic ? Color.ITALIC : "") + "(x" + x + "/y" + y + "/z" + z + worldDisplay.toString() + ")");
@@ -313,7 +315,7 @@ public class Util extends Queue {
         StringBuilder message = new StringBuilder(Chat.COMPONENT_TAG_OPEN + Chat.COMPONENT_POPUP);
 
         // tooltip
-        message.append("|" + tooltip + "|");
+        message.append("|" + tooltip.replace("|", Chat.COMPONENT_PIPE) + "|");
 
         // chat output
         message.append(phrase);
@@ -689,6 +691,30 @@ public class Util extends Queue {
         return false;
     }
 
+    /* return true if item can be added to container */
+    public static boolean canAddContainer(ItemStack[] container, ItemStack item, int forceMaxStack) {
+        for (ItemStack containerItem : container) {
+            if (containerItem == null || containerItem.getType() == Material.AIR) {
+                return true;
+            }
+
+            int maxStackSize = containerItem.getMaxStackSize();
+            if (forceMaxStack > 0 && (forceMaxStack < maxStackSize || maxStackSize == -1)) {
+                maxStackSize = forceMaxStack;
+            }
+
+            if (maxStackSize == -1) {
+                maxStackSize = 1;
+            }
+
+            if (containerItem.isSimilar(item) && containerItem.getAmount() < maxStackSize) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public static int getArtId(String name, boolean internal) {
         int id = -1;
         name = name.toLowerCase(Locale.ROOT).trim();
@@ -1000,6 +1026,10 @@ public class Util extends Queue {
 
     public static boolean solidBlock(Material type) {
         return type.isSolid();
+    }
+
+    public static boolean passableBlock(Block block) {
+        return block.isPassable();
     }
 
     public static Material getType(Block block) {

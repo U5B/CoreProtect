@@ -9,21 +9,31 @@ import org.bukkit.Bukkit;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Skull;
 
+import net.coreprotect.database.Database;
+import net.coreprotect.paper.PaperAdapter;
+
 public class SkullStatement {
 
     private SkullStatement() {
         throw new IllegalStateException("Database class");
     }
 
-    public static void insert(PreparedStatement preparedStmt, int time, String owner) {
+    public static ResultSet insert(PreparedStatement preparedStmt, int time, String owner) {
         try {
             preparedStmt.setInt(1, time);
             preparedStmt.setString(2, owner);
-            preparedStmt.executeUpdate();
+            if (Database.hasReturningKeys()) {
+                return preparedStmt.executeQuery();
+            }
+            else {
+                preparedStmt.executeUpdate();
+            }
         }
         catch (Exception e) {
             e.printStackTrace();
         }
+
+        return null;
     }
 
     public static void getData(Statement statement, BlockState block, String query) {
@@ -37,8 +47,11 @@ public class SkullStatement {
 
             while (resultSet.next()) {
                 String owner = resultSet.getString("owner");
-                if (owner != null && owner.length() >= 32) {
+                if (owner != null && owner.length() >= 32 && owner.contains("-")) {
                     skull.setOwningPlayer(Bukkit.getOfflinePlayer(UUID.fromString(owner)));
+                }
+                else if (owner != null && owner.length() > 1) {
+                    PaperAdapter.ADAPTER.setSkullOwner(skull, owner);
                 }
             }
 
