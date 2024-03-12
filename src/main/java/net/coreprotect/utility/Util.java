@@ -29,6 +29,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Chest;
 import org.bukkit.block.CommandBlock;
+import org.bukkit.block.Container;
 import org.bukkit.block.Jukebox;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.block.banner.Pattern;
@@ -47,6 +48,8 @@ import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.BlockStateMeta;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.io.BukkitObjectOutputStream;
@@ -63,6 +66,8 @@ import net.coreprotect.thread.CacheHandler;
 import net.coreprotect.thread.Scheduler;
 import net.coreprotect.utility.serialize.ItemMetaHandler;
 import net.coreprotect.worldedit.CoreProtectEditSessionEvent;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 public class Util extends Queue {
 
@@ -276,26 +281,61 @@ public class Util extends Queue {
 
         ItemStack item = new ItemStack(Util.getType(type), amount);
         item = (ItemStack) Rollback.populateItemStack(item, metadata)[2];
-        String displayName = item.hasItemMeta() && item.getItemMeta().hasDisplayName() ? item.getItemMeta().getDisplayName() : "";
-        if (displayName.isEmpty()) {
+        ItemMeta meta = item.getItemMeta();
+        boolean hasData = item.hasItemMeta() && (meta.hasDisplayName() || meta.hasLore() || meta instanceof BlockStateMeta);
+        if (!hasData) {
             return "";
         }
-        StringBuilder message = new StringBuilder(displayName);
+        StringBuilder message = new StringBuilder(Color.RESET + (meta.hasDisplayName() ? removeBadColorCodes(LegacyComponentSerializer.legacySection().serialize(meta.displayName())) : item.getType().getKey().asString()));
 
-        // @Nullable
-        // List<String> lore = item.getItemMeta().getLore();
-        // if (lore != null) {
-        //     for (String line : lore) {
-        //         if (line == null || line.isEmpty()) {
-        //             continue;
-        //         }
-        //         if (message.length() > 0) {
-        //             message.append("\n");
-        //         }
-        //         message.append(line + COLOR.RESET);
-        //     }
-        // }
+        List<String> loreList = new ArrayList<>();
+        if (meta.hasLore()) {
+            for (Component lore : meta.lore()) {
+                loreList.add(LegacyComponentSerializer.legacySection().serialize(lore));
+            }
+            for (String lore : loreList) {
+                if (message.length() > 0) {
+                    message.append(Color.RESET + "\n");
+                }
+                // strikethrough and underline look like garbage in hovertext
+                lore = removeBadColorCodes(lore);
+                message.append(lore);
+            }
+        }
 
+        // ItemMeta is going to shatter into pieces in 1.20.5 but this will work for now
+        if (meta instanceof Damageable) {
+            Damageable damageable = (Damageable) meta;
+            int maxDurability = ((int) item.getType().getMaxDurability());
+            if (maxDurability > 0) {
+                String durabilityColor = damageable.hasDamage() ? Color.RED : Color.GREEN;
+                int currentDurability = maxDurability - damageable.getDamage();
+                message.append(Color.RESET + "\n" + durabilityColor + "Durability: " + currentDurability + "/" + maxDurability);
+            }
+        }
+
+        // very cursed container support
+        if (meta instanceof BlockStateMeta) {
+            BlockStateMeta blockMeta = (BlockStateMeta)meta;
+            if (blockMeta.getBlockState() instanceof Container) {
+                Container container = (Container) blockMeta.getBlockState();
+                Inventory inv = container.getInventory();
+                List<String> containerItemList = new ArrayList<>();
+                int count = 0;
+                for (ItemStack invItem : inv.getContents()) {
+                    if (invItem == null) {
+                        continue;
+                    }
+                    ItemMeta invItemMeta = invItem.getItemMeta();
+                    count++;
+                    containerItemList.add(Color.RESET + "\n" + Color.GREY + invItem.getAmount() + "x " + Color.RESET + (invItemMeta.hasDisplayName() ? removeBadColorCodes(LegacyComponentSerializer.legacySection().serialize(invItemMeta.displayName())) : invItem.getType().getKey().asString()));
+                }
+                message.append(Color.RESET + "\n" + Color.DARK_GREY + "Slots: " + count + "/" + inv.getSize());
+                for (String containerItemString : containerItemList) {
+                    message.append(containerItemString);
+                }
+            }
+        }
 
         // if (!displayName.isEmpty()) {
         //     message.insert(0, lore.isEmpty() ? Color.WHITE : Color.AQUA);
@@ -305,6 +345,15 @@ public class Util extends Queue {
         //     message.insert(0, Color.AQUA + Color.ITALIC + name);
         // }
         return message.toString();
+    }
+
+    /* Remove bad looking color codes since Color.RESET seems to not work*/
+    private static String removeBadColorCodes(String string) {
+        string = string.replaceAll(Color.STRIKETHROUGH, "");
+        string = string.replaceAll(Color.UNDERLINE, "");
+        string = string.replaceAll(Color.ITALIC, "");
+        string = string.replaceAll(Color.BOLD, "");
+        return string;
     }
 
     public static String createTooltip(String phrase, String tooltip) {
