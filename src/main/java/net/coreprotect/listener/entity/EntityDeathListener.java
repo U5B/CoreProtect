@@ -122,7 +122,7 @@ public final class EntityDeathListener extends Queue implements Listener {
             e = isCommand ? "#command" : "";
         }
 
-        List<DamageCause> validDamageCauses = Arrays.asList(DamageCause.KILL, DamageCause.POISON, DamageCause.THORNS, DamageCause.MAGIC, DamageCause.WITHER);
+        List<DamageCause> validDamageCauses = Arrays.asList(DamageCause.POISON, DamageCause.THORNS, DamageCause.MAGIC, DamageCause.WITHER);
 
         boolean skip = true;
         EntityDamageEvent.DamageCause cause = damage.getCause();

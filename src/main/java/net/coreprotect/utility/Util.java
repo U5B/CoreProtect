@@ -328,7 +328,8 @@ public class Util extends Queue {
                     }
                     ItemMeta invItemMeta = invItem.getItemMeta();
                     count++;
-                    containerItemList.add(Color.RESET + "\n" + Color.GREY + invItem.getAmount() + "x " + Color.RESET + (invItemMeta.hasDisplayName() ? removeBadColorCodes(LegacyComponentSerializer.legacySection().serialize(invItemMeta.displayName())) : invItem.getType().getKey().asString()));
+                    String displayName = (invItemMeta.hasDisplayName() ? removeBadColorCodes(LegacyComponentSerializer.legacySection().serialize(invItemMeta.displayName())) + Color.DARK_GREY +  " (" + invItem.getType().getKey().asString().replace("minecraft:", "") + ")" : invItem.getType().getKey().asString().replace("minecraft:", ""));
+                    containerItemList.add(Color.RESET + "\n" + Color.DARK_GREY + invItem.getAmount() + "x " + Color.RESET + displayName);
                 }
                 message.append(Color.RESET + "\n" + Color.DARK_GREY + "Slots: " + count + "/" + inv.getSize());
                 for (String containerItemString : containerItemList) {
