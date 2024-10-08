@@ -18,6 +18,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.StringUtil;
 
 import net.coreprotect.config.ConfigHandler;
+import net.coreprotect.utility.Util;
 
 public class TabHandler implements TabCompleter {
 
@@ -34,6 +35,7 @@ public class TabHandler implements TabCompleter {
         if (!(sender instanceof Player) || args.length == 0) {
             return null;
         }
+        Player source = (Player) sender;
         if (args.length == 1) {
             String argument = args[0].toLowerCase(Locale.ROOT);
             List<String> completions = new ArrayList<>();
@@ -170,7 +172,7 @@ public class TabHandler implements TabCompleter {
                     arg = split[1];
                 }
 
-                List<String> completions = Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList());
+                List<String> completions = Util.getPlayerNames(source);
                 for (int index = 0; index < completions.size(); index++) {
                     completions.set(index, filter + completions.get(index));
                 }
@@ -343,7 +345,7 @@ public class TabHandler implements TabCompleter {
                 }
                 else if ((sender.hasPermission("coreprotect.lookup") && (argument0.equals("l") || argument0.equals("lookup"))) || (sender.hasPermission("coreprotect.rollback") && (argument0.equals("rollback") || argument0.equals("rb") || argument0.equals("ro"))) || (sender.hasPermission("coreprotect.restore") && (argument0.equals("restore") || argument0.equals("rs") || argument0.equals("re")))) {
                     List<String> completions = new ArrayList<>(filterParams(true, argument0, argument1, hasUser, hasAction, hasInclude, hasExclude, hasRadius, hasTime, hasContainer, hasCount, hasPreview, pageLookup, validContainer));
-                    completions.addAll(Bukkit.getOnlinePlayers().stream().filter(player -> player.getName().toLowerCase(Locale.ROOT).startsWith(argument1)).map(Player::getName).collect(Collectors.toList()));
+                    completions.addAll(Util.getPlayerNames(source).stream().filter(name -> name.toLowerCase(Locale.ROOT).startsWith(argument1)).collect(Collectors.toList()));
                     return StringUtil.copyPartialMatches(argument1, completions, new ArrayList<>(completions.size()));
                 }
             }

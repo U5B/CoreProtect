@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
@@ -70,6 +71,8 @@ import net.coreprotect.thread.NetworkHandler;
 import net.coreprotect.thread.Scheduler;
 import net.coreprotect.utility.serialize.ItemMetaHandler;
 import net.coreprotect.worldedit.CoreProtectEditSessionEvent;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.Component;
 import oshi.SystemInfo;
 import oshi.hardware.CentralProcessor;
 
@@ -1812,6 +1815,10 @@ public class Util extends Queue {
 
     public static boolean isSideGlowing(boolean isFront, int data) {
         return ((isFront && (data == 1 || data == 3)) || (!isFront && (data == 2 || data == 3)));
+    }
+
+    public static List<String> getPlayerNames(Player source) {
+        return Bukkit.getOnlinePlayers().stream().filter(p -> source.canSee(p)).map(Player::getName).collect(Collectors.toList());
     }
 
 }
