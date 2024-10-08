@@ -4,7 +4,7 @@
   <artifactId>CoreProtect</artifactId>
   <version>22.4</version>
   <properties>
-    <project.branch></project.branch>
+    <project.branch>edge</project.branch>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
   <build>
@@ -44,7 +44,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>3.2.4</version>
+        <version>3.5.0</version>
         <executions>
           <execution>
             <phase>package</phase>
