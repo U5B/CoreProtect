@@ -945,7 +945,7 @@ public class LookupCommand {
                                                     }
 
                                                     Chat.sendComponent(player2, timeago + " " + tag + " " + Phrase.build(Phrase.LOOKUP_CONTAINER, Color.DARK_AQUA + rbd + dplayer + Color.WHITE + rbd, "x" + amount, Util.createTooltip(Color.DARK_AQUA + rbd + dname, tooltip) + Color.WHITE, selector));
-                                                    PluginChannelListener.getInstance().sendData(player2, Integer.parseInt(time), Phrase.LOOKUP_CONTAINER, selector, dplayer, dname, amount, x, y, z, wid, rbd, true, tag.contains("+"));
+                                                    PluginChannelListener.getInstance().sendData(player2, Integer.parseInt(time), Phrase.LOOKUP_CONTAINER, selector, dplayer, dname, amount, x, y, z, wid, rbd, true, tag.contains("+"), tooltip);
                                                 }
                                             }
                                             else {
@@ -1041,7 +1041,7 @@ public class LookupCommand {
                                                         }
 
                                                         Chat.sendComponent(player2, timeago + " " + tag + " " + Phrase.build(phrase, Color.DARK_AQUA + rbd + dplayer + Color.WHITE + rbd, "x" + amount, Util.createTooltip(Color.DARK_AQUA + rbd + dname, tooltip) + Color.WHITE, selector));
-                                                        PluginChannelListener.getInstance().sendData(player2, Integer.parseInt(time), phrase, selector, dplayer, dname, (tag.contains("+") ? 1 : -1), x, y, z, wid, rbd, action.contains("container"), tag.contains("+"));
+                                                        PluginChannelListener.getInstance().sendData(player2, Integer.parseInt(time), phrase, selector, dplayer, dname, (tag.contains("+") ? 1 : -1), x, y, z, wid, rbd, action.contains("container"), tag.contains("+"), tooltip);
                                                     }
                                                     else {
                                                         if (daction == 2 || daction == 3) {
@@ -1057,13 +1057,14 @@ public class LookupCommand {
                                                         }
 
                                                         Chat.sendComponent(player2, timeago + " " + tag + " " + Phrase.build(phrase, Color.DARK_AQUA + rbd + dplayer + Color.WHITE + rbd, Color.DARK_AQUA + rbd + dname + Color.WHITE, selector));
-                                                        PluginChannelListener.getInstance().sendData(player2, Integer.parseInt(time), phrase, selector, dplayer, dname, (tag.contains("+") ? 1 : -1), x, y, z, wid, rbd, false, tag.contains("+"));
+                                                        PluginChannelListener.getInstance().sendData(player2, Integer.parseInt(time), phrase, selector, dplayer, dname, (tag.contains("+") ? 1 : -1), x, y, z, wid, rbd, false, tag.contains("+"), "");
                                                     }
 
                                                     action = (finalArgAction.size() == 0 ? " (" + action + ")" : "");
                                                     Chat.sendComponent(player2, Color.WHITE + leftPadding + Color.GREY + "^ " + Util.getCoordinates(command.getName(), wid, x, y, z, true, true) + Color.GREY + Color.ITALIC + action);
                                                 }
                                             }
+                                            PluginChannelListener.getInstance().sendDelimiter(player2);
                                             if (rows > displayResults) {
                                                 int total_pages = (int) Math.ceil(rows / (displayResults + 0.0));
                                                 if (finalArgAction.contains(6) || finalArgAction.contains(7) || finalArgAction.contains(9) || (finalArgAction.contains(4) && finalArgAction.contains(11))) {

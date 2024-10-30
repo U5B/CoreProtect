@@ -154,6 +154,7 @@ public class SignMessageLookup {
                 PluginChannelListener.getInstance().sendMessageData(commandSender, resultTime, resultUser, message.toString(), true, x, y, z, worldId);
             }
             results.close();
+            PluginChannelListener.getInstance().sendDelimiter(commandSender);
 
             if (found) {
                 if (count > limit) {

@@ -1209,7 +1209,7 @@ public class CommandHandler implements CommandExecutor {
                     else if (user.hasPermission("coreprotect.purge") && corecommand.equals("purge")) {
                         permission = true;
                     }
-                    else if (user.hasPermission("coreprotect.lookup") && (corecommand.equals("l") || corecommand.equals("lookup") || corecommand.equals("page") || corecommand.equals("near"))) {
+                    else if (user.hasPermission("coreprotect.lookup") && (corecommand.equals("l") || corecommand.equals("lookup") || corecommand.equals("page") || corecommand.equals("near")) || corecommand.equals("dump-logs")) {
                         permission = true;
                     }
                     else if (user.hasPermission("coreprotect.lookup.near") && corecommand.equals("near")) {
@@ -1270,6 +1270,9 @@ public class CommandHandler implements CommandExecutor {
                 }
                 else if (corecommand.equals("consumer")) {
                     ConsumerCommand.runCommand(user, permission, argumentArray);
+                }
+                else if (corecommand.equals("dump-logs")) {
+                    DumpLogsCommand.runCommand(user, permission, argumentArray);
                 }
                 else if (corecommand.equals("network-debug")) {
                     NetworkDebugCommand.runCommand(user, permission, argumentArray);
