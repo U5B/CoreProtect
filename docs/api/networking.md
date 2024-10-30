@@ -18,26 +18,33 @@ The server will not respond unless the player has the correct permission, which 
 ## Server to Client
 
 ### Data Packet
-Sends data from the database.
+
+Sends data from the database. This is different from upstream. All bytes are encoded via `DataInput`, which is bad since
+you can't use Mojang's `FriendlyByteBuf`.
 
 * Channel: `coreprotect:data`
 
-| Type: `Int` | 1                      | 2                      | 3                  | 4                  |
-|-------------|------------------------|------------------------|--------------------|--------------------|
-|             | Time: `long`           | Time: `long`           | Time: `long`       | Time: `long`       |
-|             | Phrase selector: `UTF` | Phrase selector: `UTF` | Result User: `UTF` | Result User: `UTF` |
-|             | Result User: `UTF`     | Result User: `UTF`     | Message: `UTF`     | Target: `UTF`      |
-|             | Target: `UTF`          | Amount: `Int`          | Sign: `Boolean`    |                    |
-|             | Amount: `Int`          | X: `Int`               | X: `Int`           |                    |
-|             | X: `Int`               | Y: `Int`               | Y: `Int`           |                    |
-|             | Y: `Int`               | Z: `Int`               | Z: `Int`           |                    |
-|             | Z: `Int`               | World name: `UTF`      | World name: `UTF`  |                    |
-|             | World name: `UTF`      |                        |                    |                    |
-|             | Rolledback: `Boolean`  |                        |                    |                    |
-|             | isContainer: `Boolean` |                        |                    |                    |
-|             | Added: `Boolean`       |                        |                    |                    |
+| Type: `Int` | 0 | 1                      | 2                      | 3                  | 4                  |
+|-------------|---|------------------------|------------------------|--------------------|--------------------|
+|             |   | Time: `long`           | Time: `long`           | Time: `long`       | Time: `long`       |
+|             |   | Phrase selector: `UTF` | Phrase selector: `UTF` | Result User: `UTF` | Result User: `UTF` |
+|             |   | Result User: `UTF`     | Result User: `UTF`     | Message: `UTF`     | Target: `UTF`      |
+|             |   | Target: `UTF`          | Amount: `Int`          | Sign: `Boolean`    |                    |
+|             |   | Amount: `Int`          | X: `Int`               | X: `Int`           |                    |
+|             |   | X: `Int`               | Y: `Int`               | Y: `Int`           |                    |
+|             |   | Y: `Int`               | Z: `Int`               | Z: `Int`           |                    |
+|             |   | Z: `Int`               | World name: `UTF`      | World name: `UTF`  |                    |
+|             |   | World name: `UTF`      |                        |                    |                    |
+|             |   | Rolledback: `Boolean`  |                        |                    |                    |
+|             |   | isContainer: `Boolean` |                        |                    |                    |
+|             |   | Added: `Boolean`       |                        |                    |                    |
+|             |   | Tootip: `UTF`          |                        |                    |                    |
+
+Type 0 is a special packet that indicates a delimiter. This is needed since coreprotect data is a stream, and it's
+non-trivial to determine when the plugin is done sending data.
 
 Example (Fabric):
+
 ```
 ByteArrayInputStream in = new ByteArrayInputStream(buf.getWrittenBytes());
 DataInputStream dis = new DataInputStream(in);
@@ -57,6 +64,7 @@ boolean added = dis.readBoolean();
 ```
 
 ### Handshake Packet
+
 Sends handshake if player is registered.
 
 * Channel: `coreprotect:handshake`
@@ -67,14 +75,17 @@ Sends handshake if player is registered.
 ## Client to Server
 
 ### Handshake Packet
-Sends handshake to register
 
-* Channel: `coreprotect:handshake`  
-* Mod Version: `UTF`  
-* Mod Id: `UTF`   
+Sends handshake to register. This is no longer required to read data, as it's non-trivial to handle when considering
+shard transfers.
+
+* Channel: `coreprotect:handshake`
+* Mod Version: `UTF`
+* Mod Id: `UTF`
 * CoreProtect Protocol: `Int`
 
 Example (Fabric):
+
 ```
 PacketByteBuf packetByteBuf = new PacketByteBuf(Unpooled.buffer());
 ByteArrayOutputStream msgBytes = new ByteArrayOutputStream();
@@ -90,6 +101,7 @@ packetByteBuf.writeBytes(msgBytes.toByteArray());
 ## Debugging
 
 ### /co network-debug
+
 Allows you to debug the networking API if you are registered and have correct permissions.  
 To utilize the command, `network-debug: true` must be set in the CoreProtect `config.yml`.
 

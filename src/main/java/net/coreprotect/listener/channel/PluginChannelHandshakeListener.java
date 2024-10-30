@@ -43,11 +43,7 @@ public class PluginChannelHandshakeListener implements PluginMessageListener, Li
     }
 
     public boolean isPluginChannelPlayer(CommandSender commandSender) {
-        if (!(commandSender instanceof Player)) {
-            return false;
-        }
-
-        return getPluginChannelPlayers().contains(((Player) commandSender).getUniqueId());
+        return commandSender instanceof Player;
     }
 
     @EventHandler
