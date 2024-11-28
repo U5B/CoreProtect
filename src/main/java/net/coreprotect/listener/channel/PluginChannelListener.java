@@ -30,7 +30,7 @@ public class PluginChannelListener implements Listener {
         return instance;
     }
 
-    public void sendData(CommandSender commandSender, long timeAgo, Phrase phrase, String selector, String resultUser, String target, int amount, int x, int y, int z, int worldId, String rbFormat, boolean isContainer, boolean added) throws IOException {
+    public void sendData(CommandSender commandSender, long timeAgo, Phrase phrase, String selector, String resultUser, String target, int amount, int x, int y, int z, int worldId, String rbFormat, boolean isContainer, boolean added, String tooltip) throws IOException {
         if (!PluginChannelHandshakeListener.getInstance().isPluginChannelPlayer(commandSender)) {
             return;
         }
@@ -53,6 +53,7 @@ public class PluginChannelListener implements Listener {
         msgOut.writeBoolean(!rbFormat.isEmpty());
         msgOut.writeBoolean(isContainer);
         msgOut.writeBoolean(added);
+        msgOut.writeUTF(tooltip);
         if (Config.getGlobal().NETWORK_DEBUG) {
             Chat.console(String.valueOf(timeAgo * 1000));
             Chat.console(phraseSelector);
@@ -70,6 +71,14 @@ public class PluginChannelListener implements Listener {
         }
 
         send(commandSender, msgBytes.toByteArray());
+    }
+
+    public void sendDelimiter(CommandSender commandSender) {
+        if (!PluginChannelHandshakeListener.getInstance().isPluginChannelPlayer(commandSender)) {
+            return;
+        }
+
+        send(commandSender, new byte[]{0, 0, 0, 0});
     }
 
     public void sendInfoData(CommandSender commandSender, long timeAgo, Phrase phrase, String selector, String resultUser, int amount, int x, int y, int z, int worldId) throws IOException {
@@ -193,7 +202,7 @@ public class PluginChannelListener implements Listener {
                 sendUsernameData(commandSender, timeAgo, resultUser, "Arne");
                 break;
             default:
-                sendData(commandSender, timeAgo, Phrase.LOOKUP_CONTAINER, selector, resultUser, "clay_ball", amount, x, y, z, worldId, rbFormat, false, true);
+                sendData(commandSender, timeAgo, Phrase.LOOKUP_CONTAINER, selector, resultUser, "clay_ball", amount, x, y, z, worldId, rbFormat, false, true, "");
                 break;
         }
 
